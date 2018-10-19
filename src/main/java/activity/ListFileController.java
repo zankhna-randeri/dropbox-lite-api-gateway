@@ -17,7 +17,6 @@ public class ListFileController {
     S3service  s3List = new S3service();
     List<S3File> files = s3List.listFiles(foldername);
     return ListFileOutput.builder().files(files).build();
-
   }
 
 }

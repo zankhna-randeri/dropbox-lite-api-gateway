@@ -1,20 +1,20 @@
 package activity;
 
-import model.UploadFileOutput;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import IO.UploadFileOutput;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import service.S3service;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 
 @RestController
 public class UploadFileActivity {
 
-  @RequestMapping(value = "/upload", method = RequestMethod.POST, consumes = "multipart/form-data")
+  //  @RequestMapping(value = "/upload", method = RequestMethod.POST, consumes = "multipart/form-data")
+
+  @PostMapping(value = "/upload", consumes = "multipart/form-data")
   public UploadFileOutput upload(@RequestParam("file") MultipartFile input,
                                  @RequestParam("other-args") String otherargs) {
     // 1. get file stream
@@ -23,18 +23,19 @@ public class UploadFileActivity {
     // 4. update database entry
     // 5. return success else failure
 
-    try (BufferedReader reader = new BufferedReader(new InputStreamReader(input.getInputStream()))) {
-      String line;
-      while ((line = reader.readLine()) != null) {
-        System.out.println(line);
-      }
+    boolean result = false;
+    S3service uploadFile = new S3service();
+    try {
+      result = uploadFile.uploadFile(input.getInputStream(), otherargs);
+
     } catch (IOException e) {
       e.printStackTrace();
     }
+
     System.out.println(otherargs);
 
     return UploadFileOutput.builder()
-        .result("success")
+        .result(result)
         .build();
   }
 
