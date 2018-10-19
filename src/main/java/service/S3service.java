@@ -50,8 +50,28 @@ public class S3service {
   }
 
   public boolean createFolder(String folderName) {
-    boolean success = true;
-    return success;
+    try {
+      AmazonS3 s3Client = AmazonS3ClientBuilder
+          .standard()
+          .withCredentials(DefaultAWSCredentialsProviderChain.getInstance())
+          .withRegion(clientRegion).build();
+      folderName = folderName + "/";
+      InputStream folderStream = new InputStream() {
+        @Override
+        public int read() throws IOException {
+          return -1;
+        }
+      };
+      ObjectMetadata metadata = new ObjectMetadata();
+      metadata.setContentLength(0L);
+      PutObjectRequest putRequest = new PutObjectRequest(bucketName, folderName, folderStream, metadata);
+      s3Client.putObject(putRequest);
+      return true;
+
+    } catch (Exception e) {
+      e.printStackTrace();
+      return false;
+    }
   }
 
   public boolean uploadFile(InputStream streamFile, String folderName) {
