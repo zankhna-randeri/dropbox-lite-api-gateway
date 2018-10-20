@@ -6,5 +6,5 @@ import lombok.Data;
 @Data
 @Builder
 public class UploadFileOutput {
-  private String result;
+  private boolean result;
 }
