@@ -3,6 +3,7 @@ package model;
 import lombok.Builder;
 import lombok.Data;
 import lombok.ToString;
+import model.S3File;
 
 import java.util.List;
 
@@ -10,5 +11,5 @@ import java.util.List;
 @Builder
 @ToString
 public class ListFileOutput {
-  private List<String> files;
+  private List<S3File> files;
 }
