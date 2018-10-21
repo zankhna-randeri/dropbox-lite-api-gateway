@@ -22,4 +22,5 @@ public class FileInfo {
   private long fileCreationTimestamp;
   private long fileUpdateTimestamp;
   private String s3Key;
+  private String description;
 }
