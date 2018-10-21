@@ -18,7 +18,7 @@ public class UserService {
       String query = String.format("Select * from User where user_email='%s'", userEmail);
       ResultSet rs = statement.executeQuery(query);
       connection.close();
-      return (rs == null);
+      return (rs != null);
     } catch (SQLException e) {
       throw new RuntimeException(e);
     }

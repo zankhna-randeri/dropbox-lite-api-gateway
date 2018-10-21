@@ -8,8 +8,6 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.*;
 import com.amazonaws.util.IOUtils;
 import model.S3File;
-
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -75,27 +73,21 @@ public class S3service {
     }
   }
 
-  public boolean uploadFile(InputStream streamFile, String folderName) {
-    boolean result = true;
-    String keyName = folderName + "/";
+  public boolean uploadFile(InputStream streamFile, long contentLength, String folderName, String fileName) {
+    String keyName = folderName + "/" +fileName;
     try {
       AmazonS3 s3Client = AmazonS3ClientBuilder
           .standard()
           .withCredentials(DefaultAWSCredentialsProviderChain.getInstance())
           .withRegion(clientRegion).build();
 
-      byte[] contentByte = IOUtils.toByteArray(streamFile);
       ObjectMetadata metadata = new ObjectMetadata();
-      metadata.setContentLength(contentByte.length);
+      metadata.setContentLength(contentLength);
       PutObjectRequest putRequest = new PutObjectRequest(bucketName, keyName, streamFile, metadata);
       s3Client.putObject(putRequest);
-    } catch (IOException e) {
-      result = false;
-      e.printStackTrace();
     } catch (Exception e) {
-      result = false;
-      e.printStackTrace();
+      throw new RuntimeException(e);
     }
-    return result;
+    return true;
   }
 }
