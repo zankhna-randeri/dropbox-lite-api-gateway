@@ -24,16 +24,22 @@ public class UserService {
     }
   }
 
-  public void insertUser(User user) {
+  public int insertUser(User user) {
     try {
       Connection connection = DriverManager.getConnection(db_url, db_user, db_password);
       String query = "Insert into User (first_name,last_name,user_email,password) values (?,?,?,?)";
-      PreparedStatement statement = connection.prepareStatement(query);
+      PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
       statement.setString(1, user.getFirstName());
       statement.setString(2, user.getLastName());
       statement.setString(3, user.getUserEmail());
       statement.setString(4, user.getPassword());
-      System.out.println("Result of insert:" + statement.execute());
+      int n = statement.executeUpdate();
+      if (n != 1) {
+        throw new IllegalStateException("Update entries are less than 1");
+      }
+      ResultSet result = statement.getGeneratedKeys();
+      result.next();
+      return result.getInt(1);
     } catch (SQLException e) {
       throw new RuntimeException(e);
     }

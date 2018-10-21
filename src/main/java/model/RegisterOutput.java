@@ -9,4 +9,5 @@ import lombok.ToString;
 @ToString
 public class RegisterOutput {
   private boolean userCreated;
+  private int userId;
 }

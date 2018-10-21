@@ -22,10 +22,13 @@ public class RegisterController {
     if (userService.isUserExist(user.getUserEmail())) {
       return RegisterOutput.builder().userCreated(false).build();
     } else {
-      userService.insertUser(user);
+      int userId = userService.insertUser(user);
       S3service s3Service = new S3service();
-      s3Service.createFolder(user.getUserEmail());
-      return RegisterOutput.builder().userCreated(true).build();
+      s3Service.createFolder(Integer.toString(userId));
+      return RegisterOutput.builder()
+          .userCreated(true)
+          .userId(userId)
+          .build();
     }
 
   }

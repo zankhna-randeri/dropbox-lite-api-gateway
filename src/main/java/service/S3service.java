@@ -9,6 +9,7 @@ import com.amazonaws.services.s3.model.*;
 import com.amazonaws.util.IOUtils;
 import model.S3File;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -75,10 +76,8 @@ public class S3service {
   }
 
   public boolean uploadFile(InputStream streamFile, String folderName) {
-
     boolean result = true;
     String keyName = folderName + "/";
-
     try {
       AmazonS3 s3Client = AmazonS3ClientBuilder
           .standard()
@@ -90,7 +89,6 @@ public class S3service {
       metadata.setContentLength(contentByte.length);
       PutObjectRequest putRequest = new PutObjectRequest(bucketName, keyName, streamFile, metadata);
       s3Client.putObject(putRequest);
-
     } catch (IOException e) {
       result = false;
       e.printStackTrace();
