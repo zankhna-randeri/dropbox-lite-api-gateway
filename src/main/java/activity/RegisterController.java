@@ -19,16 +19,14 @@ public class RegisterController {
     //3. insert user in rds mysql
 
     UserService userService = new UserService();
-    if (userService.isUserExist()) {
+    if (userService.isUserExist(user.getUserEmail())) {
       return RegisterOutput.builder().userCreated(false).build();
     } else {
-
+      userService.insertUser(user);
       S3service s3Service = new S3service();
       s3Service.createFolder(user.getUserEmail());
-
       return RegisterOutput.builder().userCreated(true).build();
     }
-
 
   }
 }
