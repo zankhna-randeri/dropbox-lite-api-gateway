@@ -1,15 +1,18 @@
 package activity;
 
+import dao.UserDao;
 import model.RegisterOutput;
 import model.User;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import service.S3service;
-import service.UserService;
 
 @RestController
 public class RegisterController {
+
+  @Autowired
+  private UserDao userDao;
 
   @PostMapping(value = "/user", consumes = {"application/json"})
   public RegisterOutput createUser(@RequestBody User user) {
@@ -18,13 +21,10 @@ public class RegisterController {
     //2. create folder in s3
     //3. insert user in rds mysql
 
-    UserService userService = new UserService();
-    if (userService.isUserExist(user.getUserEmail())) {
+    if (userDao.isUserExist(user.getUserEmail())) {
       return RegisterOutput.builder().userCreated(false).build();
     } else {
-      int userId = userService.insertUser(user);
-      S3service s3Service = new S3service();
-      s3Service.createFolder(Integer.toString(userId));
+      int userId = userDao.registerUser(user);
       return RegisterOutput.builder()
           .userCreated(true)
           .userId(userId)

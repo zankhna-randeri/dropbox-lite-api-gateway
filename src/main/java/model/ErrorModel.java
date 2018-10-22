@@ -3,8 +3,8 @@ package model;
 import lombok.Builder;
 import lombok.Data;
 
-@Data
 @Builder
-public class ListFileInput {
-  private String folderName;
+@Data
+public class ErrorModel {
+  private String exceptionMsg;
 }

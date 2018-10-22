@@ -1,23 +1,21 @@
 package activity;
 
+import dao.FileDao;
 import model.ListFileOutput;
-import model.S3File;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
-import service.S3service;
-
-import java.util.List;
 
 @RestController
 public class ListFileController {
 
-  @GetMapping("/listfile/{foldername:.+}")
-  public ListFileOutput listFiles(@PathVariable String folderName) {
-    // FIXME : implement MySQL
-    S3service  s3List = new S3service();
-    List<S3File> files = s3List.listFiles(folderName);
-    return ListFileOutput.builder().files(files).build();
+  @Autowired
+  private FileDao fileDao;
+
+  @GetMapping("/listfile")
+  public ListFileOutput listFiles(@RequestHeader(value = "userid") int userId) {
+    return ListFileOutput.builder().files(fileDao.listFiles(userId)).build();
   }
 
 }
