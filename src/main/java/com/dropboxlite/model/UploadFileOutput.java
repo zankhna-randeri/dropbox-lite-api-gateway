@@ -1,4 +1,4 @@
-package model;
+package com.dropboxlite.model;
 
 import lombok.Builder;
 import lombok.Data;

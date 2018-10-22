@@ -1,4 +1,4 @@
-package utils;
+package com.dropboxlite.utils;
 
 import java.sql.*;
 
@@ -13,15 +13,14 @@ public class DatabaseUtils {
         DatabaseUtils.DB_PASSWORD);
   }
 
-  public static boolean isRecordExist(String query) throws SQLException {
-    Connection connection = getDatabaseConnection();
-    PreparedStatement statement = connection.prepareStatement(query);
-    ResultSet resultSet =  statement.executeQuery();
-    int n = 0;
-    while (resultSet.next()) {
-      n++;
+  public static boolean isRecordExist(Connection connection, String query) throws SQLException {
+    try (PreparedStatement statement = connection.prepareStatement(query)) {
+      ResultSet resultSet = statement.executeQuery();
+      int n = 0;
+      while (resultSet.next()) {
+        n++;
+      }
+      return n != 0;
     }
-    connection.close();
-    return n != 0;
   }
 }

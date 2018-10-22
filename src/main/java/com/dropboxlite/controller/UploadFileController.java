@@ -1,8 +1,8 @@
-package activity;
+package com.dropboxlite.controller;
 
-import dao.FileDao;
-import model.FileInfo;
-import model.UploadFileOutput;
+import com.dropboxlite.dao.FileDao;
+import com.dropboxlite.model.FileInfo;
+import com.dropboxlite.model.UploadFileOutput;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;

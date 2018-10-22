@@ -1,6 +1,6 @@
-package dao;
+package com.dropboxlite.dao;
 
-import model.User;
+import com.dropboxlite.model.User;
 
 public interface UserDao {
   /**

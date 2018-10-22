@@ -1,9 +1,9 @@
-package activity;
+package com.dropboxlite.controller;
 
-import dao.FileDao;
-import exception.InvalidRequestException;
-import model.DeleteFileOutput;
-import model.FileInfo;
+import com.dropboxlite.dao.FileDao;
+import com.dropboxlite.exception.InvalidRequestException;
+import com.dropboxlite.model.DeleteFileOutput;
+import com.dropboxlite.model.FileInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,7 +18,17 @@ public class DeleteFileController {
   private FileDao fileDao;
 
   @DeleteMapping("/delete/{userId:[0-9]+}/{fileName:.+}")
-  public DeleteFileOutput deleteFile(@PathVariable int userId, @PathVariable String fileName) {
+  public DeleteFileOutput deleteFile(@PathVariable int userId,
+                                     @PathVariable String fileName) {
+
+    if (userId <= 0) {
+      throw new InvalidRequestException("UserId must be greater than 0");
+    }
+    if (fileName == null || fileName.trim().isEmpty()) {
+      throw new InvalidRequestException("Filename can not be empty");
+    }
+
+
     FileInfo fileInfo = null;
     try {
       fileInfo = fileDao.getFileInfo(userId, fileName);

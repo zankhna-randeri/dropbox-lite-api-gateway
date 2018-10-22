@@ -1,24 +1,30 @@
-package dao;
+package com.dropboxlite.dao;
 
-import model.User;
-import utils.DatabaseUtils;
+import com.dropboxlite.model.User;
+import com.dropboxlite.utils.DatabaseUtils;
 
 import java.sql.*;
 
-public class UserDaoImpl implements UserDao {
+public class UserDaoImpl implements UserDao, AutoCloseable {
 
   private static final String USER_EXIST_QUERY_FORMAT =
       "Select * from User where user_email='%s'";
 
   private static final String USER_INSERT_QUERY_FORMAT =
       "Insert into User (first_name,last_name,user_email,password)" + " " +
-      "values (?,?,?,?)";
+          "values (?,?,?,?)";
+
+  private final Connection connection;
+
+  public UserDaoImpl() throws SQLException {
+    this.connection = DatabaseUtils.getDatabaseConnection();
+  }
 
   @Override
   public boolean isUserExist(String userEmail) {
     try {
       String query = String.format(USER_EXIST_QUERY_FORMAT, userEmail);
-      return DatabaseUtils.isRecordExist(query);
+      return DatabaseUtils.isRecordExist(connection, query);
     } catch (SQLException e) {
       throw new RuntimeException(e);
     }
@@ -26,10 +32,8 @@ public class UserDaoImpl implements UserDao {
 
   @Override
   public int registerUser(User user) {
-    try {
-      Connection connection = DatabaseUtils.getDatabaseConnection();
-
-      PreparedStatement statement = connection.prepareStatement(USER_INSERT_QUERY_FORMAT, Statement.RETURN_GENERATED_KEYS);
+    try (PreparedStatement statement =
+             connection.prepareStatement(USER_INSERT_QUERY_FORMAT, Statement.RETURN_GENERATED_KEYS)) {
       statement.setString(1, user.getFirstName());
       statement.setString(2, user.getLastName());
       statement.setString(3, user.getUserEmail());
@@ -44,5 +48,10 @@ public class UserDaoImpl implements UserDao {
     } catch (SQLException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  @Override
+  public void close() throws Exception {
+    connection.close();
   }
 }

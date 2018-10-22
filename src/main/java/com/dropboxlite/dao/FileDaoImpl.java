@@ -1,14 +1,11 @@
-package dao;
+package com.dropboxlite.dao;
 
-import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
-import com.amazonaws.regions.Region;
-import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
-import model.FileInfo;
-import utils.DatabaseUtils;
+import com.dropboxlite.model.FileInfo;
+import com.dropboxlite.utils.DatabaseUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -17,16 +14,11 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FileDaoImpl implements FileDao {
+
+public class FileDaoImpl implements FileDao, AutoCloseable {
 
   private static final String FILE_EXIST_QUERY_FORMAT =
       "Select * from File where user_id=%d and file_name = '%s'";
-
-/*  private static final String FILE_INSERT_QUERY_FORMAT =
-      "Insert into File (file_name, user_id, upload_timestamp, update_timestamp," +
-          "s3_key,file_description,file_size values (?,?,?,?,?,?,?) " +
-          "ON DUPLICATE KEY " +
-          "UPDATE update_timestamp=?,file_description=?,file_size=?";*/
 
   private static final String FILE_INSERT_QUERY_FORMAT =
       "Insert into File " +
@@ -50,14 +42,23 @@ public class FileDaoImpl implements FileDao {
   private static final String DELETE_FILE_QUERY_FORMAT =
       "Delete from File where user_id=%d and file_name = '%s'";
 
-  String clientRegion = Region.getRegion(Regions.US_EAST_1).getName();
-  String bucketName = "cloudhomework2bucket";
+
+  private static final String BUCKET_NAME = "cloudhomework2bucket";
+
+  private final Connection connection;
+
+  @Autowired
+  private AmazonS3 s3Client;
+
+  public FileDaoImpl() throws SQLException {
+    this.connection = DatabaseUtils.getDatabaseConnection();
+  }
 
   @Override
   public boolean isFileExist(int userId, String fileName) {
     try {
       String query = String.format(FILE_EXIST_QUERY_FORMAT, userId, fileName);
-      return DatabaseUtils.isRecordExist(query);
+      return DatabaseUtils.isRecordExist(connection, query);
     } catch (SQLException e) {
       throw new RuntimeException(e);
     }
@@ -65,9 +66,8 @@ public class FileDaoImpl implements FileDao {
 
   @Override
   public void insertFile(FileInfo fileInfo) {
-    try {
-      Connection connection = DatabaseUtils.getDatabaseConnection();
-      PreparedStatement statement = connection.prepareStatement(FILE_INSERT_QUERY_FORMAT, Statement.RETURN_GENERATED_KEYS);
+    try (PreparedStatement statement = connection.prepareStatement(FILE_INSERT_QUERY_FORMAT,
+        Statement.RETURN_GENERATED_KEYS)) {
 
       //Used on file insert
       statement.setString(1, fileInfo.getFileName());
@@ -92,25 +92,19 @@ public class FileDaoImpl implements FileDao {
   @Override
   public boolean uploadFile(InputStream streamFile, FileInfo fileInfo) {
     String keyName = fileInfo.getUserId() + "/" + fileInfo.getFileName();
-    AmazonS3 s3Client = AmazonS3ClientBuilder
-        .standard()
-        .withCredentials(DefaultAWSCredentialsProviderChain.getInstance())
-        .withRegion(clientRegion).build();
     ObjectMetadata metadata = new ObjectMetadata();
     metadata.setContentLength(fileInfo.getFileSize());
-    PutObjectRequest putRequest = new PutObjectRequest(bucketName, keyName, streamFile, metadata);
+    PutObjectRequest putRequest = new PutObjectRequest(BUCKET_NAME, keyName, streamFile, metadata);
     s3Client.putObject(putRequest);
     return true;
   }
 
   @Override
   public List<FileInfo> listFiles(int userId) {
-    try {
-      List<FileInfo> fileInfoList = new ArrayList<>();
-      Connection connection = DatabaseUtils.getDatabaseConnection();
-      String query = String.format(LIST_FILE_QUERY_FORMAT, userId);
-      PreparedStatement statement = connection.prepareStatement(query);
+    String query = String.format(LIST_FILE_QUERY_FORMAT, userId);
+    try (PreparedStatement statement = connection.prepareStatement(query)) {
       ResultSet resultSet = statement.executeQuery();
+      List<FileInfo> fileInfoList = new ArrayList<>();
       while (resultSet.next()) {
         FileInfo fileInfo = FileInfo.builder()
             .fileName(resultSet.getString(1))
@@ -122,7 +116,6 @@ public class FileDaoImpl implements FileDao {
             .fileSize(resultSet.getLong(7)).build();
         fileInfoList.add(fileInfo);
       }
-      connection.close();
       return fileInfoList;
     } catch (SQLException e) {
       throw new RuntimeException(e);
@@ -132,10 +125,6 @@ public class FileDaoImpl implements FileDao {
   @Override
   public boolean createFolder(String folderName) {
     try {
-      AmazonS3 s3Client = AmazonS3ClientBuilder
-          .standard()
-          .withCredentials(DefaultAWSCredentialsProviderChain.getInstance())
-          .withRegion(clientRegion).build();
       folderName = folderName + "/";
       InputStream folderStream = new InputStream() {
         @Override
@@ -145,7 +134,7 @@ public class FileDaoImpl implements FileDao {
       };
       ObjectMetadata metadata = new ObjectMetadata();
       metadata.setContentLength(0L);
-      PutObjectRequest putRequest = new PutObjectRequest(bucketName, folderName, folderStream, metadata);
+      PutObjectRequest putRequest = new PutObjectRequest(BUCKET_NAME, folderName, folderStream, metadata);
       s3Client.putObject(putRequest);
       return true;
     } catch (Exception e) {
@@ -156,12 +145,10 @@ public class FileDaoImpl implements FileDao {
 
   @Override
   public FileInfo getFileInfo(int userId, String fileName) throws FileNotFoundException {
-    try {
-      FileInfo fileInfo = null;
-      String query = String.format(FILE_EXIST_QUERY_FORMAT, userId, fileName);
-      Connection connection = DatabaseUtils.getDatabaseConnection();
-      PreparedStatement statement = connection.prepareStatement(query);
+    String query = String.format(FILE_EXIST_QUERY_FORMAT, userId, fileName);
+    try (PreparedStatement statement = connection.prepareStatement(query)) {
       ResultSet resultSet = statement.executeQuery();
+      FileInfo fileInfo = null;
       if (resultSet.next()) {
         fileInfo = FileInfo.builder()
             .fileName(resultSet.getString(1))
@@ -172,7 +159,6 @@ public class FileDaoImpl implements FileDao {
             .description(resultSet.getString(6))
             .fileSize(resultSet.getLong(7)).build();
       }
-      connection.close();
       return fileInfo;
     } catch (SQLException e) {
       throw new RuntimeException(e);
@@ -181,26 +167,21 @@ public class FileDaoImpl implements FileDao {
 
   @Override
   public void deleteFileFromS3(String s3Key) {
-    String bucketName = "cloudhomework2bucket";
-    String clientRegion = Region.getRegion(Regions.US_EAST_1).getName();
-
-    AmazonS3 s3Client = AmazonS3ClientBuilder
-        .standard()
-        .withCredentials(DefaultAWSCredentialsProviderChain.getInstance())
-        .withRegion(clientRegion).build();
-    s3Client.deleteObject(bucketName, s3Key);
+    s3Client.deleteObject(BUCKET_NAME, s3Key);
   }
 
   @Override
   public void deleteFileFromDB(int userId, String fileName) throws FileNotFoundException {
-    try {
-      Connection connection = DatabaseUtils.getDatabaseConnection();
-      String query = String.format(DELETE_FILE_QUERY_FORMAT, userId, fileName);
-      PreparedStatement statement = connection.prepareStatement(query);
+    String query = String.format(DELETE_FILE_QUERY_FORMAT, userId, fileName);
+    try (PreparedStatement statement = connection.prepareStatement(query)) {
       statement.executeUpdate();
-      connection.close();
     } catch (SQLException e) {
       e.printStackTrace();
     }
+  }
+
+  @Override
+  public void close() throws Exception {
+    connection.close();
   }
 }

@@ -1,8 +1,8 @@
-package activity;
+package com.dropboxlite.controller;
 
-import dao.UserDao;
-import model.RegisterOutput;
-import model.User;
+import com.dropboxlite.dao.UserDao;
+import com.dropboxlite.model.RegisterOutput;
+import com.dropboxlite.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

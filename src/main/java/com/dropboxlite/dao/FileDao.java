@@ -1,6 +1,6 @@
-package dao;
+package com.dropboxlite.dao;
 
-import model.FileInfo;
+import com.dropboxlite.model.FileInfo;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -37,8 +37,8 @@ public interface FileDao {
   /**
    * Upload file to s3 bucket
    *
-   * @param streamFile    file stream to be uploaded
-   * @param fileInfo metadata of file to be uploaded
+   * @param streamFile file stream to be uploaded
+   * @param fileInfo   metadata of file to be uploaded
    * @return true if file successfully uploaded to s3 else false
    */
   boolean uploadFile(InputStream streamFile, FileInfo fileInfo);
@@ -52,7 +52,6 @@ public interface FileDao {
   List<FileInfo> listFiles(int userId);
 
   /**
-   *
    * @param folderName name of prefix for s3 bucket
    * @return true if folder created successfully else false
    */
@@ -60,7 +59,8 @@ public interface FileDao {
 
   /**
    * Returns file metadata of given userId and fileName from database
-   * @param userId id of user
+   *
+   * @param userId   id of user
    * @param fileName name of file
    * @return
    */
@@ -68,6 +68,7 @@ public interface FileDao {
 
   /**
    * Deletes object from s3 bucket with given key
+   *
    * @param s3Key
    */
   void deleteFileFromS3(String s3Key);
