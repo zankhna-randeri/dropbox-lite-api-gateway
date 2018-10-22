@@ -1,6 +1,7 @@
 package com.dropboxlite.controller;
 
 import com.dropboxlite.dao.UserDao;
+import com.dropboxlite.exception.InvalidRequestException;
 import com.dropboxlite.model.RegisterOutput;
 import com.dropboxlite.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,13 @@ public class RegisterController {
     //1. check user already registered
     //2. create folder in s3
     //3. insert user in rds mysql
+
+    if (user == null) {
+      throw new InvalidRequestException("User can not be null");
+    }
+    if (user.getUserEmail() == null || user.getUserEmail().trim().isEmpty()) {
+      throw new InvalidRequestException("User email can not be empty");
+    }
 
     if (userDao.isUserExist(user.getUserEmail())) {
       return RegisterOutput.builder().userCreated(false).build();

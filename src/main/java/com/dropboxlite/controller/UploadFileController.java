@@ -1,6 +1,7 @@
 package com.dropboxlite.controller;
 
 import com.dropboxlite.dao.FileDao;
+import com.dropboxlite.exception.InvalidRequestException;
 import com.dropboxlite.model.FileInfo;
 import com.dropboxlite.model.UploadFileOutput;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,13 @@ public class UploadFileController {
     // 3. upload to s3
     // 4. update database entry
     // 5. return success else failure
+
+    if (userid <= 0) {
+      throw new InvalidRequestException("UserId must be greater than 0");
+    }
+    if (description == null || description.trim().isEmpty()) {
+      throw new InvalidRequestException("File description can not be empty");
+    }
 
     //TODO : OriginalFileName() doesn not work on Opera.
     String fileName = input.getOriginalFilename();

@@ -32,8 +32,10 @@ public class DeleteFileControllerTest {
   public void deleteFileSuccessTest() throws Exception {
     when(fileDao.getFileInfo(1, "test.txt"))
         .thenReturn(FileInfo.builder().build());
+
     DeleteFileOutput expected = DeleteFileOutput.builder()
         .status("success").build();
+
     DeleteFileOutput output = controller.deleteFile(1, "test.txt");
     Assert.assertEquals(expected, output);
   }
