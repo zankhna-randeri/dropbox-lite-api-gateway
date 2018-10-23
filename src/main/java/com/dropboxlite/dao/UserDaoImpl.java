@@ -14,6 +14,9 @@ public class UserDaoImpl implements UserDao, AutoCloseable {
       "Insert into User (first_name,last_name,user_email,password)" + " " +
           "values (?,?,?,?)";
 
+  private static final String USER_LOGIN_QUERY_FORMAT =
+      "Select * from User where user_email='%s' and password='%s'";
+
   private final Connection connection;
 
   public UserDaoImpl() throws SQLException {
@@ -53,5 +56,26 @@ public class UserDaoImpl implements UserDao, AutoCloseable {
   @Override
   public void close() throws Exception {
     connection.close();
+  }
+
+  @Override
+  public User loginUser(String userEmail, String password) {
+    String query = String.format(USER_LOGIN_QUERY_FORMAT, userEmail, password);
+    try (PreparedStatement statement = connection.prepareStatement(query)) {
+      ResultSet resultSet = statement.executeQuery();
+      User user = null;
+      if (resultSet.next()) {
+        user = User.builder()
+            .userId(resultSet.getInt(1))
+            .firstName(resultSet.getString(2))
+            .lastName(resultSet.getString(3))
+            .userEmail(resultSet.getString(4))
+            .build();
+      }
+      return user;
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+    return null;
   }
 }
