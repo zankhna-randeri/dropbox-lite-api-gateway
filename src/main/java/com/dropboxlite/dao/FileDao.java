@@ -52,6 +52,13 @@ public interface FileDao {
   List<FileInfo> listFiles(int userId);
 
   /**
+   * Get all files of all users for Admin view
+   *
+   * @return all files from databse
+   */
+  List<FileInfo> listAllUserFiles();
+
+  /**
    * @param folderName name of prefix for s3 bucket
    * @return true if folder created successfully else false
    */

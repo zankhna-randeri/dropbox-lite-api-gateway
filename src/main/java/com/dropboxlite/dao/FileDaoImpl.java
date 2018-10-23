@@ -36,8 +36,12 @@ public class FileDaoImpl implements FileDao, AutoCloseable {
           "file_description=?," +
           "file_size=?";
 
-  private static final String LIST_FILE_QUERY_FORMAT =
+  private static final String LIST_USER_FILE_QUERY_FORMAT =
       "Select * from File where user_id=%d";
+
+  private static final String LIST_ALL_FILE_QUERY_FORMAT =
+      "Select f.*, user.first_name from File f, User user " +
+          "where user.user_id = f.user_id";
 
   private static final String DELETE_FILE_QUERY_FORMAT =
       "Delete from File where user_id=%d and file_name = '%s'";
@@ -101,7 +105,7 @@ public class FileDaoImpl implements FileDao, AutoCloseable {
 
   @Override
   public List<FileInfo> listFiles(int userId) {
-    String query = String.format(LIST_FILE_QUERY_FORMAT, userId);
+    String query = String.format(LIST_USER_FILE_QUERY_FORMAT, userId);
     try (PreparedStatement statement = connection.prepareStatement(query)) {
       ResultSet resultSet = statement.executeQuery();
       List<FileInfo> fileInfoList = new ArrayList<>();
@@ -183,5 +187,30 @@ public class FileDaoImpl implements FileDao, AutoCloseable {
   @Override
   public void close() throws Exception {
     connection.close();
+  }
+
+  @Override
+  public List<FileInfo> listAllUserFiles() {
+    String query = String.format(LIST_ALL_FILE_QUERY_FORMAT);
+    try (PreparedStatement statement = connection.prepareStatement(query)) {
+      ResultSet resultSet = statement.executeQuery();
+      List<FileInfo> fileInfoList = new ArrayList<>();
+      while (resultSet.next()) {
+        FileInfo fileInfo = FileInfo.builder()
+            .fileName(resultSet.getString(1))
+            .userId(resultSet.getInt(2))
+            .fileCreationTimestamp(resultSet.getLong(3))
+            .fileUpdateTimestamp(resultSet.getLong(4))
+            .s3Key(resultSet.getString(5))
+            .description(resultSet.getString(6))
+            .fileSize(resultSet.getLong(7))
+            .userName(resultSet.getString(8))
+            .build();
+        fileInfoList.add(fileInfo);
+      }
+      return fileInfoList;
+    } catch (SQLException e) {
+      throw new RuntimeException(e);
+    }
   }
 }

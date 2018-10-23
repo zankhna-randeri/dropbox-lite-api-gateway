@@ -23,4 +23,5 @@ public class FileInfo {
   private String s3Key;
   private String description;
   private long fileSize;
+  private String userName;
 }

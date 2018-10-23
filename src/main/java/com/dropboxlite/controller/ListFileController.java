@@ -23,4 +23,10 @@ public class ListFileController {
     return ListFileOutput.builder().files(fileDao.listFiles(userId)).build();
   }
 
+  @GetMapping("/listfileAdmin")
+  public ListFileOutput listAllUserFiles() {
+
+    return ListFileOutput.builder().files(fileDao.listAllUserFiles()).build();
+  }
+
 }
