@@ -70,8 +70,11 @@ public class UserDaoImpl implements UserDao, AutoCloseable {
             .firstName(resultSet.getString(2))
             .lastName(resultSet.getString(3))
             .userEmail(resultSet.getString(4))
+            .password(resultSet.getString(5))
+            .isAdmin(resultSet.getBoolean(6))
             .build();
       }
+
       return user;
     } catch (SQLException e) {
       e.printStackTrace();

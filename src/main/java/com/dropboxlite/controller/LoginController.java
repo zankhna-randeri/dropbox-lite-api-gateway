@@ -24,6 +24,7 @@ public class LoginController {
     if (password == null || password.trim().isEmpty()) {
       throw new InvalidRequestException("Password can not be empty");
     }
+
     return userDao.loginUser(email, password);
   }
 }

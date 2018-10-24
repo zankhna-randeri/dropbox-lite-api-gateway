@@ -11,6 +11,9 @@ import lombok.Data;
  * - fileCreationTimestamp : file creation timestamp
  * - fileUpdateTimestamp : file last modification timestamp
  * - s3Key : s3Key representing file location in s3 bucket.
+ * - description : file description
+ * - fileSize : size of file in bytes
+ * - userFirstName : file owner's first name
  */
 
 @Data
@@ -23,5 +26,5 @@ public class FileInfo {
   private String s3Key;
   private String description;
   private long fileSize;
-  private String userName;
+  private String userFirstName;
 }
