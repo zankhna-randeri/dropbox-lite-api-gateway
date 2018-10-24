@@ -204,7 +204,7 @@ public class FileDaoImpl implements FileDao, AutoCloseable {
             .s3Key(resultSet.getString(5))
             .description(resultSet.getString(6))
             .fileSize(resultSet.getLong(7))
-            .userName(resultSet.getString(8))
+            .userFirstName(resultSet.getString(8))
             .build();
         fileInfoList.add(fileInfo);
       }

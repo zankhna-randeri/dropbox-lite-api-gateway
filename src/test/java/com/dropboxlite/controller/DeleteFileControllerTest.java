@@ -36,7 +36,7 @@ public class DeleteFileControllerTest {
     DeleteFileOutput expected = DeleteFileOutput.builder()
         .status("success").build();
 
-    DeleteFileOutput output = controller.deleteFile(1, "test.txt");
+    DeleteFileOutput output = controller.deleteFile("1", "test.txt");
     Assert.assertEquals(expected, output);
   }
 
@@ -44,22 +44,27 @@ public class DeleteFileControllerTest {
   public void fileNotFoundTest() throws Exception {
     when(fileDao.getFileInfo(anyInt(), anyString()))
         .thenThrow(new FileNotFoundException("test"));
-    controller.deleteFile(1, "test.txt");
+    controller.deleteFile("1", "test.txt");
   }
 
   @Test(expected = InvalidRequestException.class)
   public void invalidFileNameTest() {
-    controller.deleteFile(1, null);
+    controller.deleteFile("1", null);
   }
 
   @Test(expected = InvalidRequestException.class)
   public void invalidUserIdTest() {
-    controller.deleteFile(-1, "test.txt");
+    controller.deleteFile("-1", "test.txt");
   }
 
   @Test(expected = InvalidRequestException.class)
   public void emptyFileNameTest() {
-    controller.deleteFile(1, "");
+    controller.deleteFile("1", "");
+  }
+
+  @Test(expected = InvalidRequestException.class)
+  public void emptyUserIdTest() {
+    controller.deleteFile("", "test.txt");
   }
 }
 

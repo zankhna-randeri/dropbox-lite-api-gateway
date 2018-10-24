@@ -18,22 +18,26 @@ public class DeleteFileController {
   private FileDao fileDao;
 
   @DeleteMapping("/delete/{userId:[0-9]+}/{fileName:.+}")
-  public DeleteFileOutput deleteFile(@PathVariable int userId,
+  public DeleteFileOutput deleteFile(@PathVariable String userId,
                                      @PathVariable String fileName) {
 
-    if (userId <= 0) {
-      throw new InvalidRequestException("UserId must be greater than 0");
+    if (userId == null || userId.trim().isEmpty()) {
+      throw new InvalidRequestException("UserId can not be empty");
     }
     if (fileName == null || fileName.trim().isEmpty()) {
       throw new InvalidRequestException("Filename can not be empty");
+    }
+    int userIntId = Integer.parseInt(userId);
+    if (userIntId <= 0) {
+      throw new InvalidRequestException("UserId must be greater than 0");
     }
 
 
     FileInfo fileInfo = null;
     try {
-      fileInfo = fileDao.getFileInfo(userId, fileName);
+      fileInfo = fileDao.getFileInfo(userIntId, fileName);
       fileDao.deleteFileFromS3(fileInfo.getS3Key());
-      fileDao.deleteFileFromDB(userId, fileName);
+      fileDao.deleteFileFromDB(userIntId, fileName);
     } catch (FileNotFoundException e) {
       throw new InvalidRequestException("File not found");
     }
