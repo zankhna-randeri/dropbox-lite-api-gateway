@@ -20,7 +20,7 @@ public class UploadFileController {
   private FileDao fileDao;
 
   @PostMapping(value = "/upload", consumes = "multipart/form-data")
-  public UploadFileOutput upload(@RequestHeader(value = "userid") int userid,
+  public UploadFileOutput upload(@RequestHeader(value = "userid") String userid,
                                  @RequestParam("file") MultipartFile input,
                                  @RequestParam("description") String description) {
     // 1. get file stream
@@ -29,11 +29,16 @@ public class UploadFileController {
     // 4. update database entry
     // 5. return success else failure
 
-    if (userid <= 0) {
-      throw new InvalidRequestException("UserId must be greater than 0");
+    //TODO: Test case for string UserID remaining
+    if (userid == null || userid.trim().isEmpty()) {
+      throw new InvalidRequestException("User Id can not be empty");
     }
     if (description == null || description.trim().isEmpty()) {
       throw new InvalidRequestException("File description can not be empty");
+    }
+    int userIntId = Integer.parseInt(userid);
+    if (userIntId == 0) {
+      throw new InvalidRequestException("UserId must be greater than 0");
     }
 
     //TODO : OriginalFileName() doesn not work on Opera.
@@ -43,7 +48,7 @@ public class UploadFileController {
     long updateTimeStamp = System.currentTimeMillis();
 
     FileInfo fileInfo = FileInfo.builder()
-        .userId(userid)
+        .userId(userIntId)
         .fileName(fileName)
         .s3Key(s3Key)
         .fileCreationTimestamp(uploadTimeStamp)

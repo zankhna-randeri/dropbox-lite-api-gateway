@@ -14,7 +14,7 @@ public class LoginController {
   @Autowired
   private UserDao userDao;
 
-  @GetMapping("/login")
+  @GetMapping(value = "/login", produces = "application/json")
   public User loginUser(@RequestHeader("email") String email,
                         @RequestHeader("password") String password) {
 
@@ -25,6 +25,8 @@ public class LoginController {
       throw new InvalidRequestException("Password can not be empty");
     }
 
-    return userDao.loginUser(email, password);
+    User user = userDao.loginUser(email, password);
+    System.out.println(user);
+    return user;
   }
 }

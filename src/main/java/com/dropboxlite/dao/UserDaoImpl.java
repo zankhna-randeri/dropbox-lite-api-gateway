@@ -65,14 +65,14 @@ public class UserDaoImpl implements UserDao, AutoCloseable {
       ResultSet resultSet = statement.executeQuery();
       User user = null;
       if (resultSet.next()) {
-        user = User.builder()
-            .userId(resultSet.getInt(1))
-            .firstName(resultSet.getString(2))
-            .lastName(resultSet.getString(3))
-            .userEmail(resultSet.getString(4))
-            .password(resultSet.getString(5))
-            .isAdmin(resultSet.getBoolean(6))
-            .build();
+        user = new User();
+        user.setUserId(resultSet.getInt(1));
+        user.setFirstName(resultSet.getString(2));
+        user.setLastName(resultSet.getString(3));
+        user.setUserEmail(resultSet.getString(4));
+        user.setPassword(resultSet.getString(5));
+        user.setAdminUser(resultSet.getBoolean(6));
+
       }
 
       return user;

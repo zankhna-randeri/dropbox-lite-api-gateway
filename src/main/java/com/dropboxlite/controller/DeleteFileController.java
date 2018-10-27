@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.FileNotFoundException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 
 @RestController
 public class DeleteFileController {
@@ -21,6 +23,7 @@ public class DeleteFileController {
   public DeleteFileOutput deleteFile(@PathVariable String userId,
                                      @PathVariable String fileName) {
 
+
     if (userId == null || userId.trim().isEmpty()) {
       throw new InvalidRequestException("UserId can not be empty");
     }
@@ -31,7 +34,11 @@ public class DeleteFileController {
     if (userIntId <= 0) {
       throw new InvalidRequestException("UserId must be greater than 0");
     }
-
+    try {
+      fileName = URLDecoder.decode(fileName, "UTF-8");
+    } catch (UnsupportedEncodingException e) {
+      throw new InvalidRequestException("Invalid File name");
+    }
 
     FileInfo fileInfo = null;
     try {
