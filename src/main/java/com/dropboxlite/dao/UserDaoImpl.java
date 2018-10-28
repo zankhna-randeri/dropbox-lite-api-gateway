@@ -2,10 +2,14 @@ package com.dropboxlite.dao;
 
 import com.dropboxlite.model.User;
 import com.dropboxlite.utils.DatabaseUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.*;
 
 public class UserDaoImpl implements UserDao, AutoCloseable {
+
+  private static final Logger logger = LoggerFactory.getLogger(UserDaoImpl.class);
 
   private static final String USER_EXIST_QUERY_FORMAT =
       "Select * from User where user_email='%s'";
@@ -17,10 +21,10 @@ public class UserDaoImpl implements UserDao, AutoCloseable {
   private static final String USER_LOGIN_QUERY_FORMAT =
       "Select * from User where user_email='%s' and password='%s'";
 
-  private final Connection connection;
+  private Connection connection;
 
-  public UserDaoImpl() throws SQLException {
-    this.connection = DatabaseUtils.getDatabaseConnection();
+  public UserDaoImpl(Connection connection) {
+    this.connection = connection;
   }
 
   @Override
@@ -61,6 +65,30 @@ public class UserDaoImpl implements UserDao, AutoCloseable {
   @Override
   public User loginUser(String userEmail, String password) {
     String query = String.format(USER_LOGIN_QUERY_FORMAT, userEmail, password);
+    try (PreparedStatement statement = connection.prepareStatement(query)) {
+      ResultSet resultSet = statement.executeQuery();
+      User user = null;
+      if (resultSet.next()) {
+        user = new User();
+        user.setUserId(resultSet.getInt(1));
+        user.setFirstName(resultSet.getString(2));
+        user.setLastName(resultSet.getString(3));
+        user.setUserEmail(resultSet.getString(4));
+        user.setPassword(resultSet.getString(5));
+        user.setAdminUser(resultSet.getBoolean(6));
+
+      }
+
+      return user;
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+    return null;
+  }
+
+  @Override
+  public User getUserInfoByEmail(String userEmail) {
+    String query = String.format(USER_EXIST_QUERY_FORMAT, userEmail);
     try (PreparedStatement statement = connection.prepareStatement(query)) {
       ResultSet resultSet = statement.executeQuery();
       User user = null;

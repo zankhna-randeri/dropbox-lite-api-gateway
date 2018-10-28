@@ -27,4 +27,11 @@ public interface UserDao {
    * @return User object if user provides correct logon credentials
    */
   User loginUser(String userEmail, String password);
+
+  /**
+   * login user by email
+   * @param email email of user
+   * @return User object if user provides correct sign on token and have valid credentials
+   */
+  User getUserInfoByEmail(String email);
 }

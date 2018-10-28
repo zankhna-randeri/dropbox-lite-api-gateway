@@ -5,6 +5,8 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.dropboxlite.model.FileInfo;
 import com.dropboxlite.utils.DatabaseUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.FileNotFoundException;
@@ -16,6 +18,7 @@ import java.util.List;
 
 
 public class FileDaoImpl implements FileDao, AutoCloseable {
+  private static final Logger logger = LoggerFactory.getLogger(FileDaoImpl.class);
 
   private static final String FILE_EXIST_QUERY_FORMAT =
       "Select * from File where user_id=%d and file_name = '%s'";
@@ -49,13 +52,13 @@ public class FileDaoImpl implements FileDao, AutoCloseable {
 
   private static final String BUCKET_NAME = "cloudhomework2bucket";
 
-  private final Connection connection;
+  private Connection connection;
 
   @Autowired
   private AmazonS3 s3Client;
 
-  public FileDaoImpl() throws SQLException {
-    this.connection = DatabaseUtils.getDatabaseConnection();
+  public FileDaoImpl(Connection connection) {
+    this.connection = connection;
   }
 
   @Override

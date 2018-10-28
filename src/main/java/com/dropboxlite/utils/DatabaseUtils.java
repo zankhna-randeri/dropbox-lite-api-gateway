@@ -1,17 +1,11 @@
 package com.dropboxlite.utils;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class DatabaseUtils {
-  private static final String DB_URL = "jdbc:mysql://localhost:3306/dropbox_lite_api_metadata?serverTimezone=UTC";
-  private static final String DB_USER = "root";
-  private static final String DB_PASSWORD = "root-myDb";
-
-  public static Connection getDatabaseConnection() throws SQLException {
-    return DriverManager.getConnection(DatabaseUtils.DB_URL,
-        DatabaseUtils.DB_USER,
-        DatabaseUtils.DB_PASSWORD);
-  }
 
   public static boolean isRecordExist(Connection connection, String query) throws SQLException {
     try (PreparedStatement statement = connection.prepareStatement(query)) {

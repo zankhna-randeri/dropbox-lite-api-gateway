@@ -30,7 +30,11 @@ public class RegisterController {
     }
 
     if (userDao.isUserExist(user.getUserEmail())) {
-      return RegisterOutput.builder().userCreated(false).build();
+      User dbUser = userDao.getUserInfoByEmail(user.getUserEmail());
+      return RegisterOutput.builder()
+          .userId(dbUser.getUserId())
+          .userCreated(false)
+          .build();
     } else {
       int userId = userDao.registerUser(user);
       return RegisterOutput.builder()
