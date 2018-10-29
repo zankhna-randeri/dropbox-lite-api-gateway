@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.security.PrivateKey;
 import java.util.Date;
 
@@ -38,15 +39,21 @@ public class CreatePresignedURLController {
   public CreatePresignedUrlOutput getPresignedUrl(@RequestHeader("userId") int userId,
                                                   @PathVariable("fileName") String fileName) throws Exception {
     logger.info("Received Create Presigned URL request");
+    String decoded = null;
     try {
-      fileName = URLDecoder.decode(fileName, "UTF-8");
+      decoded = URLDecoder.decode(fileName, "UTF-8");
     } catch (UnsupportedEncodingException e) {
       throw new InvalidRequestException("Invalid File name");
     }
     logger.info("Crypto configuration {}", cryptoConfig);
-    FileInfo fileInfo = fileDao.getFileInfo(userId, fileName);
+    FileInfo fileInfo = fileDao.getFileInfo(userId, decoded);
 
-    String cloudFrontURL = String.format("%s/%s", cryptoConfig.getCloudFrontDomain(), fileInfo.getS3Key());
+
+
+    String cloudFrontURL = String.format("%s/%d/%s",
+        cryptoConfig.getCloudFrontDomain(),
+        fileInfo.getUserId(), fileName);
+    logger.info("Cloudfront URL: {}", cloudFrontURL);
     Date dateLessThan = DateTime.now(DateTimeZone.UTC).plusMinutes(2).toDate();
     String signedUrl = CloudFrontUrlSigner.getSignedURLWithCannedPolicy(cloudFrontURL,
         cryptoConfig.getCloudFrontKeyPairId(),
@@ -55,5 +62,4 @@ public class CreatePresignedURLController {
 
     return CreatePresignedUrlOutput.builder().preSignedUrl(signedUrl).build();
   }
-
 }
