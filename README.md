@@ -11,7 +11,7 @@ Student: [Zankhna Randeri](https://www.linkedin.com/in/zankhna-randeri/)
 http://zankhna-randeri.site
 
 ### Demo link  
-https://drive.google.com/open?id=1zt8-Si3oKQsJMBUWKngmCovMZVqZeuuO  
+[Click here for video](https://drive.google.com/open?id=1VcfirhI-T8-Lg-e8QjoeVo42b7fbHK1n)
 
 ### Introduction
 
