@@ -26,12 +26,14 @@ public class RegisterControllerTest {
   @Test
   public void registerUserAlreadyExistTest() {
     //setup
-    Mockito.when(userDao.isUserExist("abc@gmail.com")).thenReturn(true);
     User user = User.builder().userEmail("abc@gmail.com")
         .firstName("abc")
         .lastName("xyz")
+        .userId(1)
         .password("xxxxx").build();
 
+    Mockito.when(userDao.isUserExist("abc@gmail.com")).thenReturn(true);
+    Mockito.when(userDao.getUserInfoByEmail(user.getUserEmail())).thenReturn(user);
     //call
     RegisterOutput output = controller.createUser(user);
 
