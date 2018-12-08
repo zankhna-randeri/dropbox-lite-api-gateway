@@ -7,9 +7,6 @@ Professor: [Sanjay Garje](https://www.linkedin.com/in/sanjaygarje/)
 ISA: [Anushri Srinath Aithal](https://www.linkedin.com/in/anushri-aithal/)  
 Student: [Zankhna Randeri](https://www.linkedin.com/in/zankhna-randeri/)  
 
-### Application URL
-http://zankhna-randeri.site
-
 ### Demo link  
 [Click here for video](https://drive.google.com/open?id=1VcfirhI-T8-Lg-e8QjoeVo42b7fbHK1n)
 
