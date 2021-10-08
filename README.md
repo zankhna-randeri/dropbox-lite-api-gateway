@@ -8,7 +8,7 @@ ISA: [Anushri Srinath Aithal](https://www.linkedin.com/in/anushri-aithal/)
 Student: [Zankhna Randeri](https://www.linkedin.com/in/zankhna-randeri/)  
 
 ### Demo link  
-[Click here for video](https://youtu.be/epHBs4h1We0)
+[AWS architecture and application overview video](https://youtu.be/epHBs4h1We0)
 
 ### Introduction
 
